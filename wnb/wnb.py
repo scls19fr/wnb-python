@@ -3,11 +3,26 @@ import munch
 from shapely.geometry import Point
 from shapely.geometry.polygon import Polygon
 
+YAML_LOADER_DEFAULT = yaml.FullLoader
 
-def load_config(filename, Loader=yaml.FullLoader):
+
+def load_index(filename, Loader=YAML_LOADER_DEFAULT):
+    with open(filename) as file:
+        index = yaml.load(file, Loader=Loader)
+        index = munch.munchify(index)
+        assert index.application == "wnb"
+        assert index.usage == "aircrafts-index"
+        assert index.file_format_version == "0.0.1"  # ToDo: use semver
+        return index
+
+
+def load_config(filename, Loader=YAML_LOADER_DEFAULT):
     with open(filename) as file:
         cfg = yaml.load(file, Loader=Loader)
         cfg = munch.munchify(cfg)
+        assert cfg.application == "wnb"
+        assert cfg.usage == "aircraft-wnb-data"
+        assert cfg.file_format_version == "0.0.1"  # ToDo: use semver
         return cfg
 
 
