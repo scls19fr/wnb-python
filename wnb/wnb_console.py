@@ -122,20 +122,25 @@ def load(centrogram, index, config):
     display_config_basic_format(G, spaces=2)
 
     print("Centrogram")
+    display_config_basic_format(cfg.centrogram)
     if centrogram == 'lever_arm':
         lst_x = [pt.lever_arm for pt in cfg.centrogram]
+        lst_x.append(lst_x[0])
         lst_y = [pt.mass for pt in cfg.centrogram]
+        lst_y.append(lst_y[0])
         lst_x.append(G.lever_arm)
         lst_y.append(G.mass)
     elif centrogram == 'moment':
-        lst_x = [pt.lever_arm * pt.mass for pt in cfg.centrogram]
+        lst_x = [pt.moment for pt in cfg.centrogram]
+        lst_x.append(lst_x[0])
         lst_y = [pt.mass for pt in cfg.centrogram]
+        lst_y.append(lst_y[0])
         lst_x.append(G.moment)
         lst_y.append(G.mass)
     else:
         raise NotImplementedError("x-axis of centrogram can be 'lever_arm' or 'moment'")
 
-    plx.scatter(lst_x, lst_y, axes=True, cols=90, rows=20)
+    plx.scatter(lst_x, lst_y, axes=True, cols=60, rows=20)
     plx.show()
 
     if inside_centrogram(G, cfg.centrogram):

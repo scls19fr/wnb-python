@@ -23,6 +23,8 @@ def load_config(filename, Loader=YAML_LOADER_DEFAULT):
         assert cfg.application == "wnb"
         assert cfg.usage == "aircraft-wnb-data"
         assert cfg.file_format_version == "0.0.1"  # ToDo: use semver
+        for i, pt in enumerate(cfg.centrogram):
+            cfg.centrogram[i].moment = pt.lever_arm * pt.mass
         return cfg
 
 
