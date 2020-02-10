@@ -1,7 +1,18 @@
+"""
+Calculate weight and balance of aircraft
+
+Select from a list of aircrafts
+$ python wnb/wnb_console.py --index data/index.yml
+
+Choose weight and balance data of a given aircraft
+$ python wnb/wnb_console.py --config data/f-bubk.yml
+"""
+
 import click
 import os
 import yaml
 from termcolor import colored, cprint
+import plotext.plot as plx
 
 
 from wnb import (
@@ -35,7 +46,8 @@ def choose_config(index, index_path):
         except (KeyboardInterrupt, SystemExit):
             raise
         except IndexError:
-            print("Index out of range (must be in [%d;%d])" % (1, len(index.aircrafts)))
+            text = colored("Index out of range (must be in [%d;%d])" % (1, len(index.aircrafts)), "magenta", attrs=["reverse"])
+            cprint(text)
             print()
         except:
             raise
@@ -86,9 +98,10 @@ def choose_loads(cfg):
 
 
 @click.command()
+@click.option("--centrogram", default="lever_arm", help="x axis of centrogram can be 'lever_arm' or 'moment'")
 @click.option("--index", default="")
 @click.option("--config", default="")
-def load(index, config):
+def load(centrogram, index, config):
     if index != "" and config == "":
         index_path, _ = os.path.split(index)
         index = load_index(index)
@@ -104,8 +117,26 @@ def load(index, config):
     settings = choose_loads(cfg)
 
     G = calculate_cg(cfg, settings)
+
     print("G:")
     display_config_basic_format(G, spaces=2)
+
+    print("Centrogram")
+    if centrogram == 'lever_arm':
+        lst_x = [pt.lever_arm for pt in cfg.centrogram]
+        lst_y = [pt.mass for pt in cfg.centrogram]
+        lst_x.append(G.lever_arm)
+        lst_y.append(G.mass)
+    elif centrogram == 'moment':
+        lst_x = [pt.lever_arm * pt.mass for pt in cfg.centrogram]
+        lst_y = [pt.mass for pt in cfg.centrogram]
+        lst_x.append(G.moment)
+        lst_y.append(G.mass)
+    else:
+        raise NotImplementedError("x-axis of centrogram can be 'lever_arm' or 'moment'")
+
+    plx.scatter(lst_x, lst_y, axes=True, cols=90, rows=20)
+    plx.show()
 
     if inside_centrogram(G, cfg.centrogram):
         text = colored("G is inside centrogram", "green", attrs=["reverse"])
