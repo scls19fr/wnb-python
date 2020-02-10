@@ -1,0 +1,7 @@
+---
+en:
+  error_index_config_both_empty: Both index and config can't be empty.
+  unknown_xaxis: Unknown x-axis of centrogram '{xaxis}' - not in {allowed_xaxis}.
+  unknown_backend: Unknown backend '{backend}' - not in {allowed_backends}.
+  G_is_inside_centrogram: G is inside centrogram.
+  G_is_outside_centrogram: G is outside centrogram.

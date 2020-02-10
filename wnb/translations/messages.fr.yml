@@ -1,0 +1,7 @@
+---
+fr:
+  error_index_config_both_empty: index et config ne peuvent pas être tous les 2 vides.
+  unknown_xaxis: Axe x du centrogramme '{xaxis}' inconnu - pas dans {allowed_xaxis}.
+  unknown_backend: Backend '{backend}' inconnu - pas dans {allowed_backends};
+  G_is_inside_centrogram: G est à l'intérieur du centrogram.
+  G_is_outside_centrogram: G est à l'extérieur du centrogram.
