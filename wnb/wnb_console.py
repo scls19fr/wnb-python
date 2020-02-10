@@ -5,7 +5,12 @@ Select from a list of aircrafts
 $ python wnb/wnb_console.py --index data/index.yml
 
 Choose weight and balance data of a given aircraft
+and display centrogram with lever arm as x-axis
 $ python wnb/wnb_console.py --config data/f-bubk.yml
+
+Choose weight and balance data of a given aircraft
+and display centrogram with moment as x-axis
+$ python wnb/wnb_console.py --config data/f-bubk.yml --centrogram moment
 """
 
 import click
