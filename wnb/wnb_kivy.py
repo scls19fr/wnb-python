@@ -61,10 +61,10 @@ class SlidersLayout(GridLayout):
             lbl = Label(text=txt)
             self.add_widget(lbl)
             if hasattr(load, "mass"):
-                lbl.text += " (kg)"
+                # lbl.text += " (kg)"
                 slider_properties = define_load_slider_properties(load.mass)
             elif hasattr(load, "volume"):
-                lbl.text += " (L)"
+                # lbl.text += " (L)"
                 slider_properties = define_load_slider_properties(load.volume)
             slider = Slider(
                 min=slider_properties.min,
@@ -83,8 +83,10 @@ class SlidersLayout(GridLayout):
             self.lbl_values[i].text = "%d" % slider.value
             if hasattr(self.loads[i], "mass"):
                 self.loads[i].mass.current_value = slider.value
+                self.lbl_values[i].text += " kg"
             elif hasattr(self.loads[i], "volume"):
                 self.loads[i].volume.current_value = slider.value
+                self.lbl_values[i].text += " L"
 
 
 class AircraftLoadLayout(GridLayout):
