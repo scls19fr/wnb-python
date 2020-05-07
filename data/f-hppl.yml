@@ -74,7 +74,7 @@ loads:
       step: 0.1
     comment: ''
   - designation: fuel
-    lever_arm: 1.0
+    lever_arm: 0.680
     liquid: fuel_100LL
     volume:
       default: 78
