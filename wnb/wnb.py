@@ -6,7 +6,20 @@ from shapely.geometry.polygon import Polygon
 YAML_LOADER_DEFAULT = yaml.FullLoader
 
 
-def load_index(filename, Loader=YAML_LOADER_DEFAULT):
+def load_config(filename, Loader=YAML_LOADER_DEFAULT):
+    with open(filename) as file:
+        config = yaml.load(file, Loader=Loader)
+        config = munch.munchify(config)
+        assert config.application == "wnb"
+        if config.usage == "aircrafts-index":
+            return (config.usage, load_aircrafts_index(filename))
+        elif config.usage == "aircraft-wnb-data":
+            return (config.usage, load_aircraft_config(filename))
+        else:
+            raise NotImplementedError("unexpected config %s" % filename)
+
+
+def load_aircrafts_index(filename, Loader=YAML_LOADER_DEFAULT):
     with open(filename) as file:
         index = yaml.load(file, Loader=Loader)
         index = munch.munchify(index)
@@ -16,7 +29,7 @@ def load_index(filename, Loader=YAML_LOADER_DEFAULT):
         return index
 
 
-def load_config(filename, Loader=YAML_LOADER_DEFAULT):
+def load_aircraft_config(filename, Loader=YAML_LOADER_DEFAULT):
     with open(filename) as file:
         cfg = yaml.load(file, Loader=Loader)
         cfg = munch.munchify(cfg)

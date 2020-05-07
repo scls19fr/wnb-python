@@ -3,7 +3,7 @@ import wnb
 
 
 def test_load_sample_config():
-    cfg = wnb.load_config("./data/f-bubk.yml")
+    cfg = wnb.load_aircraft_config("./data/f-bubk.yml")
     assert cfg.file_format_version == "0.0.1"
 
     assert cfg.weight_and_balance.version == "1"
@@ -42,7 +42,7 @@ def test_load_sample_config():
 
 
 def test_create_loads_list():
-    cfg = wnb.load_config("./data/f-bubk.yml")
+    cfg = wnb.load_aircraft_config("./data/f-bubk.yml")
     loads = wnb.create_loads_list(cfg)
     print(loads)
     for i in range(len(cfg.loads)):
@@ -53,7 +53,7 @@ def test_create_loads_list():
 
 
 def test_calculate_center_of_gravity():
-    cfg = wnb.load_config("./data/f-bubk.yml")
+    cfg = wnb.load_aircraft_config("./data/f-bubk.yml")
     loads = wnb.create_loads_list(cfg)
     G = wnb.calculate_cg(cfg, loads)
     assert G.mass == 668.2
@@ -62,7 +62,7 @@ def test_calculate_center_of_gravity():
 
 
 def test_inside_centrogram():
-    cfg = wnb.load_config("./data/f-bubk.yml")
+    cfg = wnb.load_aircraft_config("./data/f-bubk.yml")
 
     # in range
     loads = wnb.create_loads_list(cfg)
@@ -97,8 +97,6 @@ def test_inside_centrogram():
     loads[1].mass.current_value = 0  # Pilot
     loads[2].mass.current_value = 0  # Passenger
     loads[3].mass.current_value = 0  # Luggage
-    loads[4].volume.current_value = (
-        0 / cfg.constants.liquids.fuel_100LL.density
-    )  # Fuel
+    loads[4].volume.current_value = 0 / cfg.constants.liquids.fuel_100LL.density  # Fuel
     G = wnb.calculate_cg(cfg, loads)
     assert not wnb.inside_centrogram(G, cfg.centrogram)

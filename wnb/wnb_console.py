@@ -29,8 +29,8 @@ ALLOWED_XAXIS = ["lever_arm", "moment"]
 
 from wnb import (
     YAML_LOADER_DEFAULT,
-    load_index,
-    load_config,
+    load_aircrafts_index,
+    load_aircraft_config,
     create_loads_list,
     calculate_cg,
     inside_centrogram,
@@ -51,7 +51,7 @@ def choose_config(index, index_path):
                 )
             else:
                 raise IndexError
-            cfg = load_config(aircraft_fname)
+            cfg = load_aircraft_config(aircraft_fname)
             break
         except ValueError:
             pass
@@ -152,10 +152,10 @@ def load(xaxis, index, config, backend):
 
     if index != "" and config == "":
         index_path, _ = os.path.split(index)
-        index = load_index(index)
+        index = load_aircrafts_index(index)
         cfg = choose_config(index, index_path)
     elif index == "" and config != "":
-        cfg = load_config(config)
+        cfg = load_aircraft_config(config)
     else:
         raise NotImplementedError(i18n.t("error_index_config_both_empty"))
 

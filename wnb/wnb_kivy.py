@@ -1,20 +1,30 @@
+"""
+Python Kivy Weight and Balance
+
+Usage
+$ python wnb/wnb_kivy.py data/f-bubk.yml
+"""
+
 import i18n
 
 import os
+import sys
 
 from kivy.app import App
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.textinput import TextInput
 from kivy.uix.slider import Slider
+from kivy.uix.togglebutton import ToggleButton
+
 
 from math import sin
 from kivy_garden.graph import Graph, MeshLinePlot, ScatterPlot
 
 from wnb import (
     YAML_LOADER_DEFAULT,
-    load_index,
     load_config,
+    load_aircraft_config,
     create_loads_list,
     calculate_cg,
     inside_centrogram,
@@ -78,10 +88,10 @@ class SlidersLayout(GridLayout):
 
 
 class AircraftLoadLayout(GridLayout):
-    def __init__(self, xaxis, aircraft_config, **kwargs):
+    def __init__(self, aircraft_config, **kwargs):
         super(AircraftLoadLayout, self).__init__(**kwargs)
         self.cols = 1
-        self.cfg = load_config(aircraft_config)
+        self.cfg = load_aircraft_config(aircraft_config)
         self.loads = create_loads_list(self.cfg)
 
         self.sliders = SlidersLayout(self.cfg, self.loads)
@@ -90,33 +100,67 @@ class AircraftLoadLayout(GridLayout):
         self.lbl_center_gravity = Label(text="")
         self.add_widget(self.lbl_center_gravity)
 
-        self.graph = Graph(xlabel='X', ylabel='Y', x_ticks_minor=0.05,
-        x_ticks_major=0.5, y_ticks_major=100,
-        y_grid_label=True, x_grid_label=True, padding=5,
-        x_grid=True, y_grid=True, xmin=0.7, xmax=1.1, ymin=0, ymax=1000)
+        self.graph = Graph(
+            xlabel="X",
+            ylabel="mass",
+            # x_ticks_minor=0.05, x_ticks_major=0.5,
+            # y_ticks_major=100, # y_ticks_minor=20,
+            y_grid_label=True,
+            x_grid_label=True,
+            padding=5,
+            x_grid=True,
+            y_grid=True,
+            xmin=0.7,
+            xmax=1.1,
+            ymin=0,
+            ymax=1000,
+        )
         self.mesh_line_plot = MeshLinePlot(color=[0, 0, 1, 1])
-        self.mesh_line_plot.points = [(pt.lever_arm, pt.mass) for pt in self.cfg.centrogram]
-        self.mesh_line_plot.points.append(self.mesh_line_plot.points[0])
         self.graph.add_plot(self.mesh_line_plot)
 
         self.add_widget(self.graph)
 
-        #point = Point(0.8, 400)
-        #plot = ScatterPlot(color=(1,0,0,1), pointsize=5)
+        self.btn_toggle = ToggleButton(text="lever arm / moment", group="xaxis",)
+        self.btn_toggle.bind(on_press=self.on_touch_move)
+        self.add_widget(self.btn_toggle)
+
+        # point = Point(0.8, 400)
+        # plot = ScatterPlot(color=(1,0,0,1), pointsize=5)
         self.scatter_plot = ScatterPlot(color=[1, 0, 0, 1], point_size=5)
-        #plot.points.append((0.8, 400))
+        # plot.points.append((0.8, 400))
         self.graph.add_plot(self.scatter_plot)
 
         self.update_label_plot()
 
-
     def on_touch_move(self, touch):
-        print("AircraftLoadLayout.on_touch_move")
+        # print("AircraftLoadLayout.on_touch_move")
         self.sliders.update()
         self.update_label_plot()
 
     def update_label_plot(self):
         G = calculate_cg(self.cfg, self.loads)
+
+        if self.btn_toggle.state == "normal":
+            self.graph.xlabel = "lever_arm"
+            self.scatter_plot.points = [(G.lever_arm, G.mass)]
+            self.mesh_line_plot.points = [
+                (pt.lever_arm, pt.mass) for pt in self.cfg.centrogram
+            ]
+        else:
+            self.graph.xlabel = "moment"
+            self.scatter_plot.points = [(G.moment, G.mass)]
+            self.mesh_line_plot.points = [
+                (pt.moment, pt.mass) for pt in self.cfg.centrogram
+            ]
+        self.mesh_line_plot.points.append(self.mesh_line_plot.points[0])
+        delta_x_pc = 0.05
+        self.graph.xmin = min(x[0] for x in self.mesh_line_plot.points) * (
+            1 - delta_x_pc
+        )
+        self.graph.xmax = max(x[0] for x in self.mesh_line_plot.points) * (
+            1 + delta_x_pc
+        )
+
         is_inside_centrogram = inside_centrogram(G, self.cfg.centrogram)
         self.lbl_center_gravity.text = (
             "G: (mass=%.1f kg, lever_arm=%.2f m, moment=%.1f kg.m)"
@@ -130,7 +174,6 @@ class AircraftLoadLayout(GridLayout):
             self.lbl_center_gravity.disabled = True
             self.lbl_center_gravity.color = (1, 0, 0, 1)
             self.mesh_line_plot.color = (1, 0, 0, 1)
-        self.scatter_plot.points = [(G.lever_arm, G.mass)]
 
 
 class AircraftSelectLayout(GridLayout):
@@ -139,20 +182,20 @@ class AircraftSelectLayout(GridLayout):
 
 
 class MyApp(App):
-    def __init__(self, xaxis, index, aircraft_config, **kwargs):
-        self.xaxis = xaxis
-        self.index = index
-        self.aircraft_config = aircraft_config
+    def __init__(self, filename, **kwargs):
+        (config_type, config) = load_config(filename)
+        if config_type != "aircraft-wnb-data":
+            raise NotImplementedError("currently only aircraft-wnb-data supported")
+
+        self.filename = filename
         super(MyApp, self).__init__(**kwargs)
 
     def build(self):
-        return AircraftLoadLayout(self.xaxis, self.aircraft_config)
+        return AircraftLoadLayout(self.filename)
 
 
 def main():
-    xaxis = "lever_arm"
-    index = "."
-    aircraft_config = "data/f-bubk.yml"
+    filename = sys.argv[1]  # "data/f-bubk.yml"
 
     script_path, _ = os.path.split(os.path.abspath(__file__))
     i18n.load_path.append(os.path.join(script_path, "translations"))
@@ -162,7 +205,7 @@ def main():
     cur_locale = locale.getlocale()[0][:2]
     i18n.set("locale", cur_locale)
 
-    MyApp(xaxis, index, aircraft_config).run()
+    MyApp(filename).run()
 
 
 if __name__ == "__main__":
