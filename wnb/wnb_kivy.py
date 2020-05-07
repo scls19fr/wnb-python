@@ -153,17 +153,22 @@ class AircraftLoadLayout(GridLayout):
                 (pt.moment, pt.mass) for pt in self.cfg.centrogram
             ]
         self.mesh_line_plot.points.append(self.mesh_line_plot.points[0])
-        delta_x_pc = 0.05
+        delta_x_pc, delta_y_pc = 0.05, 0.05
         self.graph.xmin = min(x[0] for x in self.mesh_line_plot.points) * (
             1 - delta_x_pc
         )
         self.graph.xmax = max(x[0] for x in self.mesh_line_plot.points) * (
             1 + delta_x_pc
         )
-
+        self.graph.ymin = min(x[1] for x in self.mesh_line_plot.points) * (
+            1 - delta_x_pc
+        )
+        self.graph.ymax = max(x[1] for x in self.mesh_line_plot.points) * (
+            1 + delta_x_pc
+        )
         is_inside_centrogram = inside_centrogram(G, self.cfg.centrogram)
         self.lbl_center_gravity.text = (
-            "G: (mass=%.1f kg, lever_arm=%.2f m, moment=%.1f kg.m)"
+            "G: (mass=%.1f kg, lever_arm=%.3f m, moment=%.1f kg.m)"
             % (G.mass, G.lever_arm, G.moment)
         )
         if is_inside_centrogram:
