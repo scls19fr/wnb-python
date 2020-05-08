@@ -96,6 +96,10 @@ class AircraftLoadLayout(GridLayout):
         self.cfg = load_aircraft_config(aircraft_config)
         self.loads = create_loads_list(self.cfg)
 
+        acft = self.cfg.aircraft
+        self.lbl_info = Label(text="%s (%s)" % (acft.designation, acft.immat))
+        self.add_widget(self.lbl_info)
+
         self.sliders = SlidersLayout(self.cfg, self.loads)
         self.add_widget(self.sliders)
 
