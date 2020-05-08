@@ -1,6 +1,12 @@
 # wnb-python
 
-Calculate weight and balance of aircraft
+Calculate weight and balance of aircraft.
+
+This is currently a work in progress...
+
+Please use data at your own risk.
+
+The use of an application does not prevent the need to know how to do the calculation by yourself.
 
 ## Install the dependencies
 
