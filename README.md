@@ -40,3 +40,7 @@ $ python wnb/wnb_kivy.py data/f-bubk.yml
 ```bash
 $ pytest
 ```
+
+## See also
+
+- https://github.com/scls19fr/wnb Progressive web application using Quasar framework
