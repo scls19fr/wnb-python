@@ -26,5 +26,11 @@ $ python wnb/wnb_console.py --config data/f-bubk.yml
 $ python wnb/wnb_kivy.py data/f-bubk.yml
 ```
 
-![screeshot1](screeshot1.png "Screenshot1")
-![screeshot2](screeshot2.png "Screenshot2")
+![screenshot1](screenshot1.png "Screenshot1")
+![screenshot2](screenshot2.png "Screenshot2")
+
+## Unit tests
+
+```bash
+$ pytest
+```
